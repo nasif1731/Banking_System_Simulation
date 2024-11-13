@@ -5,6 +5,7 @@ BankingSystem::BankingSystem() {
     pthread_mutex_init(&account_mutex, nullptr);
 }
 
+
 int BankingSystem::create_account(int customer_id, double initial_balance) {
     pthread_mutex_lock(&account_mutex);
     int account_id = currentAccountId++;
@@ -19,7 +20,8 @@ void BankingSystem::deposit(int account_id, double amount) {
     if (account_id > 0 && account_id <= accounts.size()) {
         accounts[account_id - 1].deposit(amount);
         cout << "Deposited " << amount << " to account " << account_id << endl;
-    } else {
+    }
+    else {
         cerr << "Account ID " << account_id << " not found." << endl;
     }
     pthread_mutex_unlock(&account_mutex);
@@ -32,10 +34,12 @@ bool BankingSystem::withdraw(int account_id, double amount) {
         success = accounts[account_id - 1].withdraw(amount);
         if (success) {
             cout << "Withdrew " << amount << " from account " << account_id << endl;
-        } else {
+        }
+        else {
             cerr << "Insufficient funds in account " << account_id << endl;
         }
-    } else {
+    }
+    else {
         cerr << "Account ID " << account_id << " not found." << endl;
     }
     pthread_mutex_unlock(&account_mutex);
@@ -48,7 +52,8 @@ double BankingSystem::check_balance(int account_id) {
     if (account_id > 0 && account_id <= accounts.size()) {
         balance = accounts[account_id - 1].getBalance();
         cout << "Balance of account " << account_id << ": " << balance << endl;
-    } else {
+    }
+    else {
         cerr << "Account ID " << account_id << " not found." << endl;
     }
     pthread_mutex_unlock(&account_mutex);
@@ -57,4 +62,27 @@ double BankingSystem::check_balance(int account_id) {
 
 BankingSystem::~BankingSystem() {
     pthread_mutex_destroy(&account_mutex);
+}
+
+int BankingSystem::createTransactionProcess(int account_id, const string& transaction_type, double amount) {
+    static int transaction_id = 1;
+    int id = transaction_id++;
+
+    // Create a process for the transaction
+    int pid = processManager.createProcess(id, account_id, transaction_type);
+    cpuScheduler.addProcess(pid);
+
+    // Run deposit or withdraw based on transaction type
+    if (transaction_type == "deposit") {
+        deposit(account_id, amount);
+    }
+    else if (transaction_type == "withdraw") {
+        withdraw(account_id, amount);
+    }
+
+    return pid;
+}
+
+void BankingSystem::runScheduledTransactions() {
+    cpuScheduler.runScheduler();
 }
