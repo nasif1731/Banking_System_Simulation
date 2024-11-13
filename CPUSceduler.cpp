@@ -2,18 +2,19 @@
 #define BANKINGSYSTEM_H
 
 #include <vector>
-#include <pthread.h>
+#include <thread>
 #include <string>
+#include <mutex>
 #include "Account.h"
 #include "ProcessManager.h"
-#include "CPUScheduler.h"
+#include "CPUSceduler.h"
 
 using namespace std;
 
 class BankingSystem {
 private:
     vector<Account> accounts;
-    pthread_mutex_t account_mutex;
+    std::mutex account_mutex;
     int currentAccountId = 1;
     ProcessManager processManager;
     CPUScheduler cpuScheduler;

@@ -1,37 +1,34 @@
 #include "Account.h"
+#include <mutex>  
 
 Account::Account(int id, double initialBalance, int customerId)
     : account_id(id), balance(initialBalance), customer_id(customerId) {
-    pthread_mutex_init(&account_mutex, NULL);
+   
 }
 
-//Mutex Locks while Depositing Amount
+// Mutex locks are applied while depositing an amount
 void Account::deposit(double amount) {
-    pthread_mutex_lock(&account_mutex);
+    std::lock_guard<std::mutex> lock(account_mutex); 
     balance += amount;
-    pthread_mutex_unlock(&account_mutex);
 }
 
-//Mutex Locks while Withdrawing Amount
+// Mutex locks are applied while withdrawing an amount
 bool Account::withdraw(double amount) {
-    pthread_mutex_lock(&account_mutex);
-    bool success = false;
+    std::lock_guard<std::mutex> lock(account_mutex);  
     if (amount <= balance) {
         balance -= amount;
-        success = true;
+        return true;
     }
-    pthread_mutex_unlock(&account_mutex);
-    return success;
+    return false;
 }
 
-//Mutex Locks while getting Account Balance
+// Mutex locks are applied while getting the account balance
 double Account::getBalance() {
-    pthread_mutex_lock(&account_mutex);
-    double current_balance = balance;
-    pthread_mutex_unlock(&account_mutex);
-    return current_balance;
+    std::lock_guard<std::mutex> lock(account_mutex); 
+    return balance;
 }
 
+// Destructor: No need to explicitly destroy std::mutex
 Account::~Account() {
-    pthread_mutex_destroy(&account_mutex);
+    
 }

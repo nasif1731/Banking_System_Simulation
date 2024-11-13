@@ -1,14 +1,15 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
-#include <pthread.h>
+#include <thread>
+#include <mutex>
 
 class Account {
 private:
     int account_id;
     double balance;
     int customer_id;
-    pthread_mutex_t account_mutex;  
+    std::mutex account_mutex;  
 
 public:
     Account(int id, double initialBalance, int customerId);
