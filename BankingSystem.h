@@ -25,12 +25,14 @@ public:
     void deposit(int account_id, double amount);
     bool withdraw(int account_id, double amount);
     double check_balance(int account_id);
-
+    int calculateBurstTime(double amount);
 
     // Process management and CPU scheduling methods
     int createTransactionProcess(int account_id, const string& transaction_type, double amount = 0);
     void runScheduledTransactions();
+    ProcessManager& getProcessManager() {
+        return processManager;
+    }
 };
 
 #endif
-
